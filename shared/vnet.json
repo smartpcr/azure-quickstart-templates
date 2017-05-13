@@ -15,14 +15,24 @@
       "metadata": {
         "description": "Name of the cluster."
       }
+    },
+    "subnet0Name": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the subnet 0."
+      }
+    },
+    "subnet1Name": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the subnet 1."
+      }
     }
   },
   "variables": {
     "virtualNetworkName": "VNet",
     "addressPrefix": "10.0.0.0/16",
-    "subnet0Name": "Subnet-0",
     "subnet0Prefix": "10.0.0.0/24",
-    "subnet1Name": "Subnet-1",
     "subnet1Prefix": "10.0.1.0/24"
   },
   "resources": [
@@ -39,20 +49,20 @@
         },
         "subnets": [
           {
-            "name": "[variables('subnet0Name')]",
+            "name": "[parameters('subnet0Name')]",
             "properties": {
               "addressPrefix": "[variables('subnet0Prefix')]",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg', variables('subnet0Name')))]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg', parameters('subnet0Name')))]"
               }
             }
           },
           {
-            "name": "[variables('subnet1Name')]",
+            "name": "[parameters('subnet1Name')]",
             "properties": {
               "addressPrefix": "[variables('subnet1Prefix')]",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg', variables('subnet1Name')))]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg', parameters('subnet1Name')))]"
               }
             }
           }
@@ -67,11 +77,11 @@
   "outputs": {
     "subnet0Name": {
       "type": "string",
-      "value": "[variables('subnet0Name')]"
+      "value": "[parameters('subnet0Name')]"
     },
     "subnet1Name": {
       "type": "string",
-      "value": "[variables('subnet1Name')]"
+      "value": "[parameters('subnet1Name')]"
     },
     "subnet0AddressPrefix": {
       "type": "string",
