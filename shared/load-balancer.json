@@ -22,6 +22,12 @@
         "description": "Name of the node type."
       }
     },
+    "publicIpName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the node type."
+      }
+    },
     "loadBalancedServicePort": {
       "type": "int",
       "defaultValue": 443,
@@ -44,7 +50,6 @@
     "fabricHttpGatewayPort": "19080",
     "applicationStartPort": "20000",
     "applicationEndPort": "30000",
-    "lbIPName": "PublicIP-LB-FE",
     "lbID": "[resourceId('Microsoft.Network/loadBalancers',concat('LB','-', parameters('clusterName'),'-',parameters('nodeTypeName')))]",
     "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
     "lbIPConfig": "[concat(variables('lbID'),'/frontendIPConfigurations/LoadBalancerIPConfig')]",
@@ -63,7 +68,7 @@
             "name": "LoadBalancerIPConfig",
             "properties": {
               "publicIPAddress": {
-                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(variables('lbIPName'),'-','0'))]"
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses',concat(parameters('publicIpName'),'-','0'))]"
               }
             }
           }

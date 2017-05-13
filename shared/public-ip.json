@@ -20,6 +20,12 @@
         "description": "Name of DNS."
       }
     },
+    "publicIpName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the node type."
+      }
+    },
     "targetEnvironment": {
       "type": "string",
       "allowedValues": [ "individual", "dev", "ppe", "prod" ],
@@ -29,14 +35,12 @@
       }
     }
   },
-  "variables": {
-    "lbIPName": "PublicIP-LB-FE"
-  },
+  
   "resources": [
     {
       "apiVersion": "2017-03-01",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[concat(variables('lbIPName'),'-', parameters('subnetName'))]",
+      "name": "[concat(parameters('publicIpName'),'-', parameters('subnetName'))]",
       "location": "[resourceGroup().location]",
       "properties": {
         "dnsSettings": {
