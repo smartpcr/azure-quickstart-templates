@@ -14,6 +14,12 @@
         "description": "Name of the subnet."
       }
     },
+    "dnsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of DNS."
+      }
+    },
     "targetEnvironment": {
       "type": "string",
       "allowedValues": [ "individual", "dev", "ppe", "prod" ],
@@ -24,8 +30,7 @@
     }
   },
   "variables": {
-    "lbIPName": "PublicIP-LB-FE",
-    "dnsName": "[parameters('clusterName')]"
+    "lbIPName": "PublicIP-LB-FE"
   },
   "resources": [
     {
@@ -35,7 +40,7 @@
       "location": "[resourceGroup().location]",
       "properties": {
         "dnsSettings": {
-          "domainNameLabel": "[variables('dnsName')]"
+          "domainNameLabel": "[parameters('dnsName')]"
         },
         "publicIPAllocationMethod": "Dynamic"
       },
