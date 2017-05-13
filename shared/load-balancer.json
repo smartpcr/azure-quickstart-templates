@@ -57,9 +57,6 @@
       "type": "Microsoft.Network/loadBalancers",
       "name": "[concat('LB','-', parameters('clusterName'),'-',parameters('nodeTypeName'))]",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/publicIPAddresses/',concat(variables('lbIPName'),'-','0'))]"
-      ],
       "properties": {
         "frontendIPConfigurations": [
           {
