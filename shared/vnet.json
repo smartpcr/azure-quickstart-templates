@@ -1,0 +1,89 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "targetEnvironment": {
+      "type": "string",
+      "allowedValues": [ "individual", "dev", "ppe", "prod" ],
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "String to determine which environment the ARM is targeting."
+      }
+    },
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the cluster."
+      }
+    }
+  },
+  "variables": {
+    "virtualNetworkName": "VNet",
+    "addressPrefix": "10.0.0.0/16",
+    "subnet0Name": "Subnet-0",
+    "subnet0Prefix": "10.0.0.0/24",
+    "subnet1Name": "Subnet-1",
+    "subnet1Prefix": "10.0.1.0/24"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-03-01",
+      "type": "Microsoft.Network/virtualNetworks",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet0Name')))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet1Name')))]",
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnet0Name')]",
+            "properties": {
+              "addressPrefix": "[variables('subnet0Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg', variables('subnet0Name')))]"
+              }
+            }
+          },
+          {
+            "name": "[variables('subnet1Name')]",
+            "properties": {
+              "addressPrefix": "[variables('subnet1Prefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg', variables('subnet1Name')))]"
+              }
+            }
+          }
+        ]
+      },
+      "tags": {
+        "resourceType": "Service Fabric",
+        "clusterName": "[parameters('clusterName')]"
+      }
+    }
+  ],
+  "outputs": {
+    "subnet0Name": {
+      "type": "string",
+      "value": "[variables('subnet0Name')]"
+    },
+    "subnet1Name": {
+      "type": "string",
+      "value": "[variables('subnet1Name')]"
+    },
+    "subnet0AddressPrefix": {
+      "type": "string",
+      "value": "[variables('subnet0Prefix')]"
+    },
+    "subnet1AddressPrefix": {
+      "type": "string",
+      "value": "[variables('subnet1Prefix')]"
+    }
+  }
+}

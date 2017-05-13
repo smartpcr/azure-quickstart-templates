@@ -1,0 +1,45 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the cluster."
+      }
+    },
+    "targetEnvironment": {
+      "type": "string",
+      "allowedValues": [ "individual", "dev", "ppe", "prod" ],
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "String to determine which environment the ARM is targeting."
+      }
+    }
+  },
+  "variables": {
+    "lbIPName": "PublicIP-LB-FE",
+    "dnsName": "[parameters('clusterName')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-03-01",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "name": "[concat(variables('lbIPName'),'-','0')]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "dnsSettings": {
+          "domainNameLabel": "[variables('dnsName')]"
+        },
+        "publicIPAllocationMethod": "Dynamic"
+      },
+      "tags": {
+        "resourceType": "Service Fabric",
+        "clusterName": "[parameters('clusterName')]"
+      }
+    }
+  ],
+  "outputs": {
+    
+  }
+}

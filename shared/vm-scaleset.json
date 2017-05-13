@@ -1,0 +1,265 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "targetEnvironment": {
+      "type": "string",
+      "allowedValues": [ "individual", "dev", "ppe", "prod" ],
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "String to determine which environment the ARM is targeting."
+      }
+    },
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the cluster."
+      }
+    },
+    "nodeTypeName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of node type."
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of subnet."
+      }
+    },
+    "subnetAddressPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Address prefix of subnet."
+      }
+    },
+    "storageAccounts": {
+      "type": "array",
+      "metadata": {
+        "description": "Names of storage account for each node"
+      }
+    },
+    "storageAccountLog": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of storage account for service fabric logging"
+      }
+    },
+    "certificateThumbprint": {
+      "type": "string",
+      "metadata": {
+        "description": "thumbprint of certificate to be used for cluster nodes"
+      }
+    },
+    "sourceVaultValue": {
+      "type": "string",
+      "metadata": {
+        "description": "Resource Id of the key vault, is should be in the format of /subscriptions/<Sub ID>/resourceGroups/<Resource group name>/providers/Microsoft.KeyVault/vaults/<vault name>"
+      }
+    },
+    "certificateUrlValue": {
+      "type": "string",
+      "metadata": {
+        "description": "Refers to the location URL in your key vault where the certificate was uploaded, it is should be in the format of https://<name of the vault>.vault.azure.net:443/secrets/<exact location>"
+      }
+    },
+    "adminUserName": {
+      "type": "string",
+      "defaultValue": "testadm",
+      "metadata": {
+        "description": "Remote desktop user Id"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Remote desktop user password. Must be a strong password"
+      }
+    },
+    "vmImagePublisher": {
+      "type": "string",
+      "defaultValue": "MicrosoftWindowsServer",
+      "metadata": {
+        "description": "VM image Publisher"
+      }
+    },
+    "vmImageOffer": {
+      "type": "string",
+      "defaultValue": "WindowsServer",
+      "metadata": {
+        "description": "VM image offer"
+      }
+    },
+    "vmImageSku": {
+      "type": "string",
+      "defaultValue": "2012-R2-Datacenter",
+      "metadata": {
+        "description": "VM image SKU"
+      }
+    },
+    "vmImageVersion": {
+      "type": "string",
+      "defaultValue": "latest",
+      "metadata": {
+        "description": "VM image version"
+      }
+    },
+    "instanceCount": {
+      "type": "int",
+      "defaultValue": 5,
+      "metadata": {
+        "description": "Instance count for node type"
+      }
+    }
+  },
+  "variables": {
+    "vmSize": "Standard_D2_V2",
+    "virtualNetworkName": "VNet",
+    "nicName": "NIC",
+    "lbID": "[resourceId('Microsoft.Network/loadBalancers',concat('LB', '-', parameters('clusterName'), '-', parameters('nodeTypeName')))]",
+    "lbIPConfig": "[concat(variables('lbID'),'/frontendIPConfigurations/LoadBalancerIPConfig')]",
+    "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
+    "lbProbeID": "[concat(variables('lbID'),'/probes/FabricGatewayProbe')]",
+    "lbHttpProbeID": "[concat(variables('lbID'),'/probes/FabricHttpGatewayProbe')]",
+    "lbNatPoolID": "[concat(variables('lbID'),'/inboundNatPools/LoadBalancerBEAddressNatPool')]",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+    "subnetRef": "[concat(variables('vnetID'),'/subnets/', parameters('subnetName'))]",
+    "vmStorageAccountContainerName": "vhds",
+    "storageApiVersion": "2016-01-01"
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-04-30-preview",
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "name": "[parameters('nodeTypeName')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[0])]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[1])]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[2])]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[3])]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[4])]",
+        "[concat('Microsoft.Network/loadBalancers/', concat('LB','-', parameters('clusterName'), '-', parameters('nodeTypeName')))]",
+        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountLog'))]"
+      ],
+      "properties": {
+        "overprovision": false,
+        "upgradePolicy": {
+          "mode": "Automatic"
+        },
+        "virtualMachineProfile": {
+          "extensionProfile": {
+            "extensions": [
+              {
+                "name": "[concat('ServiceFabricNodeVmExt','_vmNodeType0Name')]",
+                "properties": {
+                  "type": "ServiceFabricNode",
+                  "autoUpgradeMinorVersion": false,
+                  "protectedSettings": {
+                    "StorageAccountKey1": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountLog')), '2015-05-01-preview').key1]",
+                    "StorageAccountKey2": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountLog')), '2015-05-01-preview').key2]"
+                  },
+                  "publisher": "Microsoft.Azure.ServiceFabric",
+                  "settings": {
+                    "clusterEndpoint": "[reference(parameters('clusterName')).clusterEndpoint]",
+                    "nodeTypeRef": "[parameters('nodeTypeName')]",
+                    "dataPath": "D:\\SvcFab",
+                    "durabilityLevel": "Bronze",
+                    "nicPrefixOverride": "[parameters('subnetAddressPrefix')]",
+                    "certificate": {
+                      "thumbprint": "[parameters('certificateThumbprint')]",
+                      "x509StoreName": "My"
+                    }
+                  },
+                  "typeHandlerVersion": "1.0"
+                }
+              }
+            ]
+          },
+          "networkProfile": {
+            "networkInterfaceConfigurations": [
+              {
+                "name": "[concat(variables('nicName'), '-0')]",
+                "properties": {
+                  "ipConfigurations": [
+                    {
+                      "name": "[concat(variables('nicName'),'-',0)]",
+                      "properties": {
+                        "loadBalancerBackendAddressPools": [
+                          {
+                            "id": "[variables('lbPoolID')]"
+                          }
+                        ],
+                        "loadBalancerInboundNatPools": [
+                          {
+                            "id": "[variables('lbNatPoolID')]"
+                          }
+                        ],
+                        "subnet": {
+                          "id": "[variables('subnetRef')]"
+                        }
+                      }
+                    }
+                  ],
+                  "primary": true
+                }
+              }
+            ]
+          },
+          "osProfile": {
+            "adminPassword": "[parameters('adminPassword')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "computernamePrefix": "[parameters('nodeTypeName')]",
+            "secrets": [
+              {
+                "sourceVault": {
+                  "id": "[parameters('sourceVaultValue')]"
+                },
+                "vaultCertificates": [
+                  {
+                    "certificateStore": "My",
+                    "certificateUrl": "[parameters('certificateUrlValue')]"
+                  }
+                ]
+              }
+            ]
+          },
+          "storageProfile": {
+            "imageReference": {
+              "publisher": "[parameters('vmImagePublisher')]",
+              "offer": "[parameters('vmImageOffer')]",
+              "sku": "[parameters('vmImageSku')]",
+              "version": "[parameters('vmImageVersion')]"
+            },
+            "osDisk": {
+              "vhdContainers": [
+                "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[0]), variables('storageApiVersion')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'))]",
+                "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[1]), variables('storageApiVersion')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'))]",
+                "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[2]), variables('storageApiVersion')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'))]",
+                "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[3]), variables('storageApiVersion')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'))]",
+                "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[4]), variables('storageApiVersion')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'))]"
+              ],
+              "name": "vmssosdisk",
+              "caching": "ReadOnly",
+              "createOption": "FromImage"
+            }
+          }
+        }
+      },
+      "sku": {
+        "name": "[variables('vmSize')]",
+        "capacity": "[parameters('instanceCount')]",
+        "tier": "Standard"
+      },
+      "tags": {
+        "resourceType": "Service Fabric",
+        "clusterName": "[parameters('clusterName')]"
+      }
+    }
+  ],
+  "outputs": {
+
+  }
+}

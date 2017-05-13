@@ -1,0 +1,57 @@
+﻿{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "targetEnvironment": {
+      "type": "string",
+      "allowedValues": [ "individual", "dev", "ppe", "prod" ],
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "String to determine which environment the ARM is targeting."
+      }
+    },
+    "clusterName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the cluster."
+      }
+    },
+    "storageAccount": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of storage account."
+      }
+    },
+    "storageSku": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS"
+      ],
+      "metadata": {
+        "description": "Sku of storage."
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-01-01",
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[parameters('storageAccount')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [],
+      "properties": {},
+      "kind": "Storage",
+      "sku": {
+        "name": "[parameters('storageSku')]"
+      },
+      "tags": {
+        "resourceType": "Service Fabric",
+        "clusterName": "[parameters('clusterName')]"
+      }
+    }
+  ],
+  "outputs": {
+  }
+}
