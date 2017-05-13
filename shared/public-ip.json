@@ -8,6 +8,12 @@
         "description": "Name of the cluster."
       }
     },
+    "subnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the subnet."
+      }
+    },
     "targetEnvironment": {
       "type": "string",
       "allowedValues": [ "individual", "dev", "ppe", "prod" ],
@@ -25,7 +31,7 @@
     {
       "apiVersion": "2017-03-01",
       "type": "Microsoft.Network/publicIPAddresses",
-      "name": "[concat(variables('lbIPName'),'-','0')]",
+      "name": "[concat(variables('lbIPName'),'-', parameters('subnetName'))]",
       "location": "[resourceGroup().location]",
       "properties": {
         "dnsSettings": {
