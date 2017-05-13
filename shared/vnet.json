@@ -33,7 +33,7 @@
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet0Name')))]",
-        "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet1Name')))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet1Name')))]"
       ],
       "properties": {
         "addressSpace": {
