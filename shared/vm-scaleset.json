@@ -182,7 +182,7 @@
             "secrets": [
               {
                 "sourceVault": {
-                  "id": "[parameters('sourceVaultValue')]"
+                  "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('sourceVaultValue'))]"
                 },
                 "vaultCertificates": [
                   {
