@@ -168,7 +168,7 @@
           "extensionProfile": {
             "extensions": [
               {
-                "name": "[concat('ServiceFabricNodeVmExt','_vmNodeType0Name')]",
+                "name": "[concat('ServiceFabricNodeVmExt', parameters('nodeTypeName'))]",
                 "properties": {
                   "type": "ServiceFabricNode",
                   "autoUpgradeMinorVersion": false,
