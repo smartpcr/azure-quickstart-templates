@@ -141,7 +141,6 @@
         "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[2])]",
         "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[3])]",
         "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[4])]",
-        "[concat('Microsoft.Network/loadBalancers/', concat('LB','-', parameters('clusterName'), '-', parameters('nodeTypeName')))]",
         "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountLog'))]"
       ],
       "properties": {

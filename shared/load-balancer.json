@@ -2,14 +2,6 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "targetEnvironment": {
-      "type": "string",
-      "allowedValues": [ "individual", "dev", "ppe", "prod" ],
-      "defaultValue": "dev",
-      "metadata": {
-        "description": "String to determine which environment the ARM is targeting."
-      }
-    },
     "clusterName": {
       "type": "string",
       "metadata": {
@@ -26,6 +18,14 @@
       "type": "string",
       "metadata": {
         "description": "Name of the subnet."
+      }
+    },
+    "targetEnvironment": {
+      "type": "string",
+      "allowedValues": [ "individual", "dev", "ppe", "prod" ],
+      "defaultValue": "dev",
+      "metadata": {
+        "description": "String to determine which environment the ARM is targeting."
       }
     },
     "publicIpName": {
