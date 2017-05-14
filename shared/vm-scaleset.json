@@ -181,6 +181,7 @@
           "osProfile": {
             "computernamePrefix": "[parameters('nodeTypeName')]",
             "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]",
             "windowsConfiguration": {
               "provisionVMAgent": true,
               "enableAutomaticUpdates": true
