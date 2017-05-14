@@ -16,6 +16,12 @@
         "description": "Name of the cluster."
       }
     },
+    "clusterEndpoint": {
+      "type": "string",
+      "metadata": {
+        "description": "Endpoint of the cluster."
+      }
+    },
     "dnsName": {
       "type": "string",
       "metadata": {
@@ -247,7 +253,7 @@
                   "typeHandlerVersion": "1.0",
                   "autoUpgradeMinorVersion": true,
                   "settings": {
-                    "clusterEndpoint": "[reference(parameters('clusterName')).clusterEndpoint]",
+                    "clusterEndpoint": "[parameters('clusterEndpoint')]",
                     "nodeTypeRef": "[parameters('nodeTypeName')]",
                     "dataPath": "D:\\SvcFab",
                     "durabilityLevel": "Bronze",
