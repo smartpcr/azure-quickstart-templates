@@ -58,6 +58,12 @@
         "description": "Name of storage account for service fabric logging"
       }
     },
+    "keyVaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "name of key vault name"
+      }
+    },
     "certificateThumbprint": {
       "type": "string",
       "metadata": {
@@ -182,7 +188,7 @@
             "secrets": [
               {
                 "sourceVault": {
-                  "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('sourceVaultValue'))]"
+                  "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
                 },
                 "vaultCertificates": [
                   {
