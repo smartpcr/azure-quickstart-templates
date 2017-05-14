@@ -28,6 +28,18 @@
         "description": "Name of the subnet 1."
       }
     },
+    "nsg0Name": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the NSG 0."
+      }
+    },
+    "nsg1Name": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the NSG 1."
+      }
+    },
     "vNetName": {
       "type": "string",
       "defaultValue": "VNet",
@@ -59,7 +71,7 @@
             "properties": {
               "addressPrefix": "[variables('subnet0Prefix')]",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg', parameters('subnet0Name')))]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', parameters('nsg0Name'))]"
               }
             }
           },
@@ -68,7 +80,7 @@
             "properties": {
               "addressPrefix": "[variables('subnet1Prefix')]",
               "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', concat('nsg', parameters('subnet1Name')))]"
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups/', parameters('nsg1Name'))]"
               }
             }
           }
