@@ -159,15 +159,6 @@
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "name": "[parameters('nodeTypeName')]",
       "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNetName'))]",
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[0])]",
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[1])]",
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[2])]",
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[3])]",
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[4])]",
-        "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccountLog'))]"
-      ],
       "properties": {
         "overprovision": false,
         "upgradePolicy": {
