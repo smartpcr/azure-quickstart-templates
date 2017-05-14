@@ -27,10 +27,16 @@
       "metadata": {
         "description": "Name of the subnet 1."
       }
+    },
+    "vNetName": {
+      "type": "string",
+      "defaultValue": "VNet",
+      "metadata": {
+        "description": "Instance count for node type"
+      }
     }
   },
   "variables": {
-    "virtualNetworkName": "VNet",
     "addressPrefix": "10.0.0.0/16",
     "subnet0Prefix": "10.0.0.0/24",
     "subnet1Prefix": "10.0.1.0/24"
@@ -39,7 +45,7 @@
     {
       "apiVersion": "2017-03-01",
       "type": "Microsoft.Network/virtualNetworks",
-      "name": "[variables('virtualNetworkName')]",
+      "name": "[parameters('vNetName')]",
       "location": "[resourceGroup().location]",
       "properties": {
         "addressSpace": {

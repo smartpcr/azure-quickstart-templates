@@ -16,6 +16,12 @@
         "description": "Name of the cluster."
       }
     },
+    "dnsName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the dns."
+      }
+    },
     "nodeTypeName": {
       "type": "string",
       "metadata": {
@@ -77,6 +83,20 @@
         "description": "Remote desktop user password. Must be a strong password"
       }
     },
+    "nicName": {
+      "type": "string",
+      "defaultValue": "NIC",
+      "metadata": {
+        "description": "name of network interface"
+      }
+    },
+    "vNetName": {
+      "type": "string",
+      "defaultValue": "VNet",
+      "metadata": {
+        "description": "Instance count for node type"
+      }
+    },
     "vmImagePublisher": {
       "type": "string",
       "defaultValue": "MicrosoftWindowsServer",
@@ -105,6 +125,14 @@
         "description": "VM image version"
       }
     },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2_V2",
+      "metadata": {
+        "description": "VM size"
+      }
+    },
+
     "instanceCount": {
       "type": "int",
       "defaultValue": 5,
@@ -114,16 +142,13 @@
     }
   },
   "variables": {
-    "vmSize": "Standard_D2_V2",
-    "virtualNetworkName": "VNet",
-    "nicName": "NIC",
     "lbID": "[resourceId('Microsoft.Network/loadBalancers',concat('LB', '-', parameters('clusterName'), '-', parameters('nodeTypeName')))]",
     "lbIPConfig": "[concat(variables('lbID'),'/frontendIPConfigurations/LoadBalancerIPConfig')]",
     "lbPoolID": "[concat(variables('lbID'),'/backendAddressPools/LoadBalancerBEAddressPool')]",
     "lbProbeID": "[concat(variables('lbID'),'/probes/FabricGatewayProbe')]",
     "lbHttpProbeID": "[concat(variables('lbID'),'/probes/FabricHttpGatewayProbe')]",
     "lbNatPoolID": "[concat(variables('lbID'),'/inboundNatPools/LoadBalancerBEAddressNatPool')]",
-    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('vNetName'))]",
     "subnetRef": "[concat(variables('vnetID'),'/subnets/', parameters('subnetName'))]",
     "vmStorageAccountContainerName": "vhds",
     "storageApiVersion": "2016-01-01"
@@ -135,7 +160,7 @@
       "name": "[parameters('nodeTypeName')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', parameters('vNetName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[0])]",
         "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[1])]",
         "[concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[2])]",
@@ -162,7 +187,7 @@
                   },
                   "publisher": "Microsoft.Azure.ServiceFabric",
                   "settings": {
-                    "clusterEndpoint": "[reference(parameters('clusterName')).clusterEndpoint]",
+                    "clusterEndpoint": "[parameters('dnsName')]",
                     "nodeTypeRef": "[parameters('nodeTypeName')]",
                     "dataPath": "D:\\SvcFab",
                     "durabilityLevel": "Bronze",
@@ -180,11 +205,11 @@
           "networkProfile": {
             "networkInterfaceConfigurations": [
               {
-                "name": "[concat(variables('nicName'), '-0')]",
+                "name": "[concat(parameters('nicName'), '-0')]",
                 "properties": {
                   "ipConfigurations": [
                     {
-                      "name": "[concat(variables('nicName'),'-',0)]",
+                      "name": "[concat(parameters('nicName'),'-',0)]",
                       "properties": {
                         "loadBalancerBackendAddressPools": [
                           {
@@ -248,7 +273,7 @@
         }
       },
       "sku": {
-        "name": "[variables('vmSize')]",
+        "name": "[parameters('vmSize')]",
         "capacity": "[parameters('instanceCount')]",
         "tier": "Standard"
       },
