@@ -89,6 +89,12 @@
         "description": "Remote desktop user Id"
       }
     },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Remote desktop user password. Must be a strong password"
+      }
+    },
     "nicName": {
       "type": "string",
       "defaultValue": "NIC",
@@ -175,6 +181,7 @@
           "osProfile": {
             "computernamePrefix": "[parameters('nodeTypeName')]",
             "adminUsername": "[parameters('adminUsername')]",
+            "adminPassword": "[parameters('adminPassword')]",
             "windowsConfiguration": {
               "provisionVMAgent": true,
               "enableAutomaticUpdates": true
