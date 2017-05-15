@@ -89,12 +89,6 @@
         "description": "Remote desktop user Id"
       }
     },
-    "adminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Remote desktop user password. Must be a strong password"
-      }
-    },
     "nicName": {
       "type": "string",
       "defaultValue": "NIC",
@@ -144,7 +138,6 @@
         "description": "VM size"
       }
     },
-
     "instanceCount": {
       "type": "int",
       "defaultValue": 5,
