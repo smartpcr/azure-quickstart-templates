@@ -144,7 +144,6 @@
         "description": "VM size"
       }
     },
-
     "instanceCount": {
       "type": "int",
       "defaultValue": 5,
@@ -171,6 +170,11 @@
       "type": "Microsoft.Compute/virtualMachineScaleSets",
       "name": "[parameters('nodeTypeName')]",
       "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "[parameters('vmSize')]",
+        "capacity": "[parameters('instanceCount')]",
+        "tier": "Standard"
+      },
       "properties": {
         "overprovision": false,
         "singlePlacementGroup": true,
@@ -189,7 +193,7 @@
             "secrets": [
               {
                 "sourceVault": {
-                  "id": "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]"
+                  "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/keyvaults/providers/Microsoft.KeyVault/vaults/', parameters('keyVaultName'))]"
                 },
                 "vaultCertificates": [
                   {
@@ -199,7 +203,7 @@
                 ]
               }
             ]
-          }, 
+          },
           "storageProfile": {
             "imageReference": {
               "publisher": "[parameters('vmImagePublisher')]",
@@ -209,11 +213,11 @@
             },
             "osDisk": {
               "vhdContainers": [
-                "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[0]), variables('storageApiVersion')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'))]",
-                "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[1]), variables('storageApiVersion')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'))]",
-                "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[2]), variables('storageApiVersion')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'))]",
-                "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[3]), variables('storageApiVersion')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'))]",
-                "[concat(reference(concat('Microsoft.Storage/storageAccounts/', parameters('storageAccounts')[4]), variables('storageApiVersion')).primaryEndpoints.blob, variables('vmStorageAccountContainerName'))]"
+                "[concat('https://', parameters('storageAccounts')[0], '.blob.core.windows.net/', variables('vmStorageAccountContainerName'))]",
+                "[concat('https://', parameters('storageAccounts')[1], '.blob.core.windows.net/', variables('vmStorageAccountContainerName'))]",
+                "[concat('https://', parameters('storageAccounts')[2], '.blob.core.windows.net/', variables('vmStorageAccountContainerName'))]",
+                "[concat('https://', parameters('storageAccounts')[3], '.blob.core.windows.net/', variables('vmStorageAccountContainerName'))]",
+                "[concat('https://', parameters('storageAccounts')[4], '.blob.core.windows.net/', variables('vmStorageAccountContainerName'))]"
               ],
               "name": "vmssosdisk",
               "caching": "ReadOnly",
@@ -227,7 +231,7 @@
                 "properties": {
                   "ipConfigurations": [
                     {
-                      "name": "[concat(parameters('nicName'),'-',0)]",
+                      "name": "[concat(parameters('nicName'), '-', 0)]",
                       "properties": {
                         "loadBalancerBackendAddressPools": [
                           {
@@ -259,11 +263,16 @@
                   "type": "ServiceFabricNode",
                   "typeHandlerVersion": "1.0",
                   "autoUpgradeMinorVersion": true,
+                  "protectedSettings": {
+                    "StorageAccountKey1": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountLog')),'2015-05-01-preview').key1]",
+                    "StorageAccountKey2": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountLog')),'2015-05-01-preview').key2]"
+                  },
                   "settings": {
                     "clusterEndpoint": "[parameters('clusterEndpoint')]",
                     "nodeTypeRef": "[parameters('nodeTypeName')]",
                     "dataPath": "D:\\SvcFab",
                     "durabilityLevel": "Bronze",
+                    "enableParallelJobs": true,
                     "nicPrefixOverride": "[parameters('subnetAddressPrefix')]",
                     "certificate": {
                       "thumbprint": "[parameters('certificateThumbprint')]",
@@ -323,11 +332,7 @@
           }
         }
       },
-      "sku": {
-        "name": "[parameters('vmSize')]",
-        "capacity": "[parameters('instanceCount')]",
-        "tier": "Standard"
-      },
+
       "tags": {
         "resourceType": "Service Fabric",
         "clusterName": "[parameters('clusterName')]"
